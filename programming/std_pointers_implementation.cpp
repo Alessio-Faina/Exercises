@@ -1,12 +1,14 @@
 #include <bits/stdc++.h>
 
 template<typename T>
-class shared_ptr {
+class shared_ptr
+{
 	int* instances;
 	T* m_ptr;
 
 	public:
-	shared_ptr() noexcept {
+	shared_ptr() noexcept
+	{
 		m_ptr = nullptr;
 		if (!instances) {
 			instances = new int(0);
@@ -21,26 +23,31 @@ class shared_ptr {
 		std::cout << "[SP]+ " << m_ptr << std::endl;
 	};
 
-	shared_ptr(const shared_ptr<T> &x) noexcept {
+	shared_ptr(const shared_ptr<T> &x) noexcept
+	{
 		m_ptr = x.m_ptr;
 		instances = x.instances;
 		(*instances)++;
 	}
 
-	shared_ptr operator=(const shared_ptr<T> &x) noexcept {
+	shared_ptr operator=(const shared_ptr<T> &x) noexcept
+	{
 		m_ptr = x.m_ptr;
 		instances = x.instances;
 		(*instances)++;
 	}
 
-	T& operator* () noexcept {
+	T& operator* () noexcept
+	{
 		return *m_ptr;
 	}
-	T* operator-> () noexcept {
+	T* operator-> () noexcept
+	{
 		return m_ptr;
 	}
 	
-	~shared_ptr() noexcept {
+	~shared_ptr() noexcept
+	{
 		static_assert(sizeof(T) > 0);
 		(*instances)--;
 		if (*instances == 0) {
@@ -56,7 +63,8 @@ class shared_ptr {
 };
 
 template<typename T>
-class unique_ptr {
+class unique_ptr
+{
 	T* m_ptr{};
 
 	public:
@@ -113,7 +121,8 @@ class unique_ptr {
 		return m_ptr;
 	}
 
-	void reset() {
+	void reset()
+	{
 		m_ptr = nullptr;
 	}
 };
@@ -129,25 +138,29 @@ unique_ptr<T> make_unique(Args&&... args) noexcept
 
 // Simplified std::remove_reference implementation
 template <typename T>
-struct remove_reference {
+struct remove_reference
+{
 	using type = T;
 };
 
 // Specialization for lvalue references (e.g., int&)
 template <typename T>
-struct remove_reference<T&> {
+struct remove_reference<T&>
+{
 	using type = T;
 };
 
 // Specialization for rvalue references (e.g., int&&)
 template <typename T>
-struct remove_reference<T&&> {
+struct remove_reference<T&&>
+{
 	using type = T;
 };
 
 // Simplified std::move implementation
 template <typename T>
-typename remove_reference<T>::type&& move(T&& arg) {
+typename remove_reference<T>::type&& move(T&& arg)
+{
 	// This function casts its argument into an rvalue reference,
 	// signaling that the object can be moved from.
 	return static_cast<typename remove_reference<T>::type&&>(arg);
@@ -160,11 +173,13 @@ typename remove_reference<T>::type&& move(T&& arg) {
 //	return ((T&&)arg);
 //}
 
-class test {
+class test
+{
 	int m_a;
 	int m_b;
 	public:
-	test(int _a, int _b) {
+	test(int _a, int _b)
+	{
 		m_a = _a;
 		m_b = _b;
 	}
@@ -174,15 +189,18 @@ class test {
 	int sub() { return m_a - m_b; }
 };
 
-void checkMoveRef(unique_ptr<test> &a) {
+void checkMoveRef(unique_ptr<test> &a)
+{
 	std::cout << "MoveRef works! " << a->sum() << std::endl;
 }
 
-void checkMove(unique_ptr<test> a) {
+void checkMove(unique_ptr<test> a)
+{
 	std::cout << "Move works! " << a->sum() << std::endl;
 }
 
-int main() {
+int main()
+{
 	unique_ptr<test> A = make_unique<test>(1, 2);
 
 	std::cout << A->sum() << std::endl;
@@ -202,7 +220,8 @@ int main() {
 	std::cout << "C:" << C->sum() << std::endl;
 
 	checkMoveRef(A);
-	if (A != nullptr) {
+	if (A != nullptr)
+	{
 		std::cout << "A is not null as expected!" << std::endl;
 	} else {
 		assert(false);
@@ -210,7 +229,8 @@ int main() {
 
 	std::cout << A->sum() << std::endl;
 	checkMove(move(A));
-	if (A == nullptr) {
+	if (A == nullptr)
+	{
 		std::cout << "A is null as expected!" << std::endl;
 	} else { 
 		assert(false);
