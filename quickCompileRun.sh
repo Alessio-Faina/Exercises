@@ -6,4 +6,4 @@ if [ -z "$1" ]; then
 fi
 
 export FILE=$1
-g++ $FILE -ggdb -o $FILE.exe -Wno-deprecated-declarations -O0 && $FILE.exe
+g++ $FILE -Wall -Wextra -Werror -ggdb -o $FILE.exe -Wno-deprecated-declarations -O0 && $FILE.exe

@@ -117,27 +117,27 @@ unique_ptr<T> make_unique(Args&&... args) {
 // Simplified std::remove_reference implementation
 template <typename T>
 struct remove_reference {
-    using type = T;
+	using type = T;
 };
 
 // Specialization for lvalue references (e.g., int&)
 template <typename T>
 struct remove_reference<T&> {
-    using type = T;
+	using type = T;
 };
 
 // Specialization for rvalue references (e.g., int&&)
 template <typename T>
 struct remove_reference<T&&> {
-    using type = T;
+	using type = T;
 };
 
 // Simplified std::move implementation
 template <typename T>
-typename std::remove_reference<T>::type&& move(T&& arg) {
-    // This function casts its argument into an rvalue reference,
-    // signaling that the object can be moved from.
-    return static_cast<typename std::remove_reference<T>::type&&>(arg);
+typename remove_reference<T>::type&& move(T&& arg) {
+	// This function casts its argument into an rvalue reference,
+	// signaling that the object can be moved from.
+	return static_cast<typename remove_reference<T>::type&&>(arg);
 }
 
 // END: MOVE IMPLEMENTATION =======================================
@@ -161,9 +161,8 @@ class test {
 	int sub() { return m_a - m_b; }
 };
 
-unique_ptr<test> checkMove(unique_ptr<test> a) {
+void checkMove(unique_ptr<test> a) {
 	std::cout << "Move works! " << a->sum() << std::endl;
-	return move(a);
 }
 
 int main() {
