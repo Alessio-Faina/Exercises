@@ -75,6 +75,10 @@ class unique_ptr {
 	bool operator==(std::nullptr_t const &) {
 		return (m_ptr == nullptr);
 	}
+	bool operator!=(std::nullptr_t const &) {
+		return (m_ptr != nullptr);
+	}
+
 
 	// MOVE Semantics
 	unique_ptr(unique_ptr&& x) {
@@ -161,6 +165,10 @@ class test {
 	int sub() { return m_a - m_b; }
 };
 
+void checkMoveRef(unique_ptr<test> &a) {
+	std::cout << "MoveRef works! " << a->sum() << std::endl;
+}
+
 void checkMove(unique_ptr<test> a) {
 	std::cout << "Move works! " << a->sum() << std::endl;
 }
@@ -184,10 +192,19 @@ int main() {
 	std::cout << "B:" << B->sum() << std::endl;
 	std::cout << "C:" << C->sum() << std::endl;
 
-	checkMove(move(A));
+	checkMoveRef(A);
+	if (A != nullptr) {
+		std::cout << "A is not null as expected!" << std::endl;
+	} else {
+		assert(false);
+	}
 
+	std::cout << A->sum() << std::endl;
+	checkMove(move(A));
 	if (A == nullptr) {
 		std::cout << "A is null as expected!" << std::endl;
+	} else { 
+		assert(false);
 	}
 	return 0;
 }
