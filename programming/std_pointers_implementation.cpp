@@ -6,14 +6,14 @@ class shared_ptr {
 	T* m_ptr;
 
 	public:
-	shared_ptr() { 
+	shared_ptr() noexcept {
 		m_ptr = nullptr;
 		if (!instances) {
 			instances = new int(0);
 		}
 	}
 
-	shared_ptr(T* obj)
+	shared_ptr(T* obj) noexcept
 		: instances(nullptr)
  		, m_ptr(obj)
 	{
@@ -21,26 +21,26 @@ class shared_ptr {
 		std::cout << "[SP]+ " << m_ptr << std::endl;
 	};
 
-	shared_ptr(const shared_ptr<T> &x) {
+	shared_ptr(const shared_ptr<T> &x) noexcept {
 		m_ptr = x.m_ptr;
 		instances = x.instances;
 		(*instances)++;
 	}
 
-	shared_ptr operator=(const shared_ptr<T> &x) {
+	shared_ptr operator=(const shared_ptr<T> &x) noexcept {
 		m_ptr = x.m_ptr;
 		instances = x.instances;
 		(*instances)++;
 	}
 
-	T& operator* () {
+	T& operator* () noexcept {
 		return *m_ptr;
 	}
-	T* operator-> () {
+	T* operator-> () noexcept {
 		return m_ptr;
 	}
 	
-	~shared_ptr() {
+	~shared_ptr() noexcept {
 		static_assert(sizeof(T) > 0);
 		(*instances)--;
 		if (*instances == 0) {
@@ -50,7 +50,7 @@ class shared_ptr {
 		}
 	}
 
-	T* get() {
+	T* get() noexcept {
 		return m_ptr;
 	}
 };
@@ -60,11 +60,12 @@ class unique_ptr {
 	T* m_ptr{};
 
 	public:
-	unique_ptr() { 
+	unique_ptr() noexcept
+	{
 		m_ptr = nullptr;
 	}
 
-	unique_ptr(T* obj) 
+	unique_ptr(T* obj) noexcept
  		: m_ptr(obj)
 	{
 		std::cout << "[UP]+ " << m_ptr << std::endl;
@@ -72,28 +73,34 @@ class unique_ptr {
 
 	unique_ptr(unique_ptr<T> const &) = delete;
 	unique_ptr operator=(unique_ptr<T> const &) = delete;
-	bool operator==(std::nullptr_t const &) {
+	bool operator==(std::nullptr_t const &) noexcept
+ 	{
 		return (m_ptr == nullptr);
 	}
-	bool operator!=(std::nullptr_t const &) {
+	bool operator!=(std::nullptr_t const &) noexcept
+ 	{
 		return (m_ptr != nullptr);
 	}
 
 
 	// MOVE Semantics
-	unique_ptr(unique_ptr&& x) {
+	unique_ptr(unique_ptr&& x) noexcept
+	{
 		m_ptr = x.m_ptr;
 		x.reset();
 	};
 
-	T& operator* () {
+	T& operator* () noexcept
+ 	{
 		return *m_ptr;
 	}
-	T* operator-> () {
+	T* operator-> () noexcept
+ 	{
 		return m_ptr;
 	}
 	
-	~unique_ptr() {
+	~unique_ptr() noexcept
+ 	{
 		static_assert(sizeof(T) > 0);
 		if (m_ptr) {
 			std::cout << "[UP]- " << m_ptr << std::endl;
@@ -101,7 +108,8 @@ class unique_ptr {
 		}
 	}
 
-	T* get() {
+	T* get() noexcept
+	{
 		return m_ptr;
 	}
 
@@ -111,7 +119,8 @@ class unique_ptr {
 };
 
 template<typename T, typename... Args>
-unique_ptr<T> make_unique(Args&&... args) {
+unique_ptr<T> make_unique(Args&&... args) noexcept
+{
 	T* m_ptr = new T(std::forward<Args>(args)...);
 	return m_ptr;
 };
