@@ -1,3 +1,5 @@
+use super::constants;
+
 
 pub fn parse_for_agent(http_request: &Vec<String>) -> Result<String, &'static str> {
     for item in http_request {
@@ -10,12 +12,12 @@ pub fn parse_for_agent(http_request: &Vec<String>) -> Result<String, &'static st
 }
 
 
-pub fn parse_for_errors(http_request: &Vec<String>) -> i16 {
+pub fn parse_for_errors(http_request: &Vec<String>) -> constants::HttpResponseStatus {
     if http_request.len() == 0 {
-        return 404;
+        return constants::HttpResponseStatus::NotFound;
     }
     if ! http_request[0].contains("GET / HTTP/1.1"){
-        return 404;
+        return constants::HttpResponseStatus::NotFound;
     }
-    return 200;
+    return constants::HttpResponseStatus::Ok;
 }

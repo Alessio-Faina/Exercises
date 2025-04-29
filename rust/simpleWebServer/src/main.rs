@@ -3,6 +3,7 @@ use std::{
 };
 
 mod http;
+use http::constants::HttpResponseStatus;
 
 fn main() {
     let listener = TcpListener::bind("127.0.0.1:7878").unwrap();
@@ -29,13 +30,12 @@ fn handle_connection(mut stream: TcpStream) {
     let mut response: String= "".to_string();
 
     match http::http_parser::parse_for_errors(&http_request) {
-        200 => { response = "HTTP/1.1 200 OK\r\n\r\n Hello ".to_string()}
-        404 => { 
+        HttpResponseStatus::Ok => { response = "HTTP/1.1 200 OK\r\n\r\n Hello ".to_string()}
+        HttpResponseStatus::NotFound => { 
                 response = "HTTP/1.1 404 NOT FOUND\r\n\r\n".to_string();
                 stream.write_all(response.as_bytes()).unwrap(); 
                 return;
             }
-        i16::MIN..=199_i16 | 201_i16..=403_i16 | 405_i16..=i16::MAX => todo!()
     } 
 
     match http::http_parser::parse_for_agent(&http_request) {
