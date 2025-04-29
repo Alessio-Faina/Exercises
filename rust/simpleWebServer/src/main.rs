@@ -1,10 +1,8 @@
 use std::{
-    fmt::Error, io::{prelude::*, BufReader, Empty}, net::{TcpListener, TcpStream}
+    /*fmt::Error,*/ io::{prelude::*, BufReader/* , Empty*/}, net::{TcpListener, TcpStream}
 };
 
 mod http;
-
-//use httparse;
 
 fn main() {
     let listener = TcpListener::bind("127.0.0.1:7878").unwrap();
@@ -27,9 +25,10 @@ fn handle_connection(mut stream: TcpStream) {
 
     println!("Request: {http_request:#?}");
 
+    #[allow(unused_assignments)]
     let mut response: String= "".to_string();
 
-    match http::HttpParser::parse_for_errors(&http_request) {
+    match http::http_parser::parse_for_errors(&http_request) {
         200 => { response = "HTTP/1.1 200 OK\r\n\r\n Hello ".to_string()}
         404 => { 
                 response = "HTTP/1.1 404 NOT FOUND\r\n\r\n".to_string();
@@ -39,7 +38,7 @@ fn handle_connection(mut stream: TcpStream) {
         i16::MIN..=199_i16 | 201_i16..=403_i16 | 405_i16..=i16::MAX => todo!()
     } 
 
-    match http::HttpParser::parse_for_agent(&http_request) {
+    match http::http_parser::parse_for_agent(&http_request) {
         Ok(v) => {response += &v},
         Err(e) => {response += &e}
     }
