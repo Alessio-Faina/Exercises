@@ -29,7 +29,7 @@ fn handle_connection(mut stream: TcpStream) {
 
     let mut response: String= "".to_string();
 
-    match http::HttpParser::parseForErrors(&http_request) {
+    match http::HttpParser::parse_for_errors(&http_request) {
         200 => { response = "HTTP/1.1 200 OK\r\n\r\n Hello ".to_string()}
         404 => { 
                 response = "HTTP/1.1 404 NOT FOUND\r\n\r\n".to_string();
@@ -39,7 +39,7 @@ fn handle_connection(mut stream: TcpStream) {
         i16::MIN..=199_i16 | 201_i16..=403_i16 | 405_i16..=i16::MAX => todo!()
     } 
 
-    match http::HttpParser::parseForAgent(&http_request) {
+    match http::HttpParser::parse_for_agent(&http_request) {
         Ok(v) => {response += &v},
         Err(e) => {response += &e}
     }
