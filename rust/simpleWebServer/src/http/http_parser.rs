@@ -106,4 +106,22 @@ mod tests {
         let v : Vec<String> = vec!["GET /?name=mike&surname=shumi HTTP/1.1".to_string()];
         assert_eq!(get_request_parameters(&v), result);
     }
+
+    #[test]
+    fn request_base_route_return_success() {
+        let v : Vec<String> = vec!["GET / HTTP/1.1".to_string()];
+        assert_eq!(get_route(&v), "/");
+    }
+
+    #[test]
+    fn request_base_route_with_params_return_success() {
+        let v : Vec<String> = vec!["GET /?name=1 HTTP/1.1".to_string()];
+        assert_eq!(get_route(&v), "/");
+    }
+
+    #[test]
+    fn request_long_route_with_params_return_success() {
+        let v : Vec<String> = vec!["GET /test/sum?name=1 HTTP/1.1".to_string()];
+        assert_eq!(get_route(&v), "/test/sum");
+    }
 }
