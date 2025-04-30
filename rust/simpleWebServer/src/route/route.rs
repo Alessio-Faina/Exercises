@@ -47,7 +47,7 @@ fn call_route_by_path(path: String,
                           http_request: &Vec<String>) -> Result<String, RouteResolverError> {
     match internal_safe_get_route_by_path(path) {
         Some(func_dispatcher) => { return Ok((func_dispatcher)(http_request)) },
-        None => { return Err(RouteResolverError::CannotFindPath);}
+        None => { return call_route_by_error_code(HttpResponseStatus::NotFound, http_request)}
     }
 }
 
@@ -68,7 +68,6 @@ pub fn add_route_by_path(route_d: String, responder_f: fn(&Vec<String>) -> Strin
 pub fn add_route_by_error_code(err_code: HttpResponseStatus, responder_f: fn(&Vec<String>) -> String) {
     let r = Route { route: "".to_string(), error_code: err_code, responder: responder_f };
     internal_safe_add_a_route(r);
-
 }
 
 pub fn call_route(http_request: &Vec<String>) -> String {
