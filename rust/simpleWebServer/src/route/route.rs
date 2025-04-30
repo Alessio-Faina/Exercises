@@ -8,10 +8,12 @@ pub enum RouteResolverError {
     CannotFindPath
 }
 
+/*
 pub enum RouteAddError {
     InvalidRoute,
     RouteAlreadyExists
 }
+*/
 
 pub struct Route {
    route: String,
