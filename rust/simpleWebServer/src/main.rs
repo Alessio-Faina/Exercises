@@ -9,6 +9,9 @@ mod route;
 fn main() {
     let listener = TcpListener::bind("127.0.0.1:7878").unwrap();
 
+    let mut routes : Vec<route::route::Route> = vec![];
+    routes.push(route::route::add_route("/".to_string(),
+                route::index::get_response));
 
     for stream in listener.incoming() {
         let stream = stream.unwrap();
