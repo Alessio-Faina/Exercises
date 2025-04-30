@@ -4,23 +4,26 @@ use std::{
 
 mod http;
 use http::{constants::HttpResponseStatus, http_parser};
+use route::route::{call_route_by_error_code, call_route_by_path};
 mod route;
 
 fn main() {
     let listener = TcpListener::bind("127.0.0.1:7878").unwrap();
 
     let mut routes : Vec<route::route::Route> = vec![];
-    routes.push(route::route::add_route("/".to_string(),
+    routes.push(route::route::add_route_by_path("/".to_string(),
                 route::index::get_response));
+    routes.push(route::route::add_route_by_error_code(HttpResponseStatus::NotFound,
+                route::not_found::get_response));
 
     for stream in listener.incoming() {
         let stream = stream.unwrap();
 
-        handle_connection(stream);
+        handle_connection(stream, &routes);
     }
 }
 
-fn handle_connection(mut stream: TcpStream) {
+fn handle_connection(mut stream: TcpStream, routes : &Vec<route::route::Route>) {
     let buf_reader = BufReader::new(&stream);
     let http_request: Vec<_> = buf_reader
         .lines()
@@ -34,29 +37,23 @@ fn handle_connection(mut stream: TcpStream) {
     let mut response: String= "".to_string();
 
     match http::http_parser::parse_for_errors(&http_request) {
-        HttpResponseStatus::Ok => { response = "HTTP/1.1 200 OK\r\n\r\nHello ".to_string()}
-        HttpResponseStatus::NotFound => { 
-                response = "HTTP/1.1 404 NOT FOUND\r\n\r\n".to_string();
-                stream.write_all(response.as_bytes()).unwrap(); 
-                return;
+        HttpResponseStatus::Ok => { 
+            let route = http_parser::get_route(&http_request);
+            let call_result: Result<String, route::route::RouteResolverError> = call_route_by_path(route, routes, &http_request);
+            match call_result {
+                Ok(res) => { response += &res },
+                Err(_) => { response += "INTERNAL ERROR"}
             }
+        }
+        HttpResponseStatus::NotFound => { 
+            let call_result: Result<String, route::route::RouteResolverError> = 
+                    call_route_by_error_code(HttpResponseStatus::NotFound, routes, &http_request);
+            match call_result {
+                Ok(res) => {response += &res },
+                Err(_) => { response += "INTERNAL ERROR" }
+            }
+        }
     } 
-
-    match http::http_parser::parse_for_agent(&http_request) {
-        Ok(v) => {response += &v},
-        Err(e) => {response += &e}
-    }
-
-    response += " user !\r\n";
-    response += "You requested route ";
-    response += &http_parser::get_route(&http_request);
-    response += "\r\n";
-
-    let a = http_parser::get_request_parameters(&http_request);
-    for item in a {
-        response += &item;
-        response += "\r\n";
-    }
 
     response += "\r\n\r\n";
     stream.write_all(response.as_bytes()).unwrap();
