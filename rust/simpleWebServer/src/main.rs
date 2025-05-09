@@ -10,18 +10,22 @@ use route::routemanager::RouteManager;
 fn main() {
     let listener = TcpListener::bind("127.0.0.1:7878").unwrap();
 
-    let mut rm = RouteManager::new();
+    let mut rm  = RouteManager::new();
     rm.add_route_by_path("/".to_string(), route::index::get_response);
     rm.add_route_by_error_code(HttpResponseStatus::NotFound, route::not_found::get_response);
 
     for stream in listener.incoming() {
         let stream = stream.unwrap();
 
-        handle_connection(stream, &mut rm);
+        std::thread::scope(| scope| {
+            scope.spawn(|| {
+                handle_connection(stream, &rm);
+            });
+        });
     }
 }
 
-fn handle_connection(mut stream: TcpStream, routemanager: &mut RouteManager) {
+fn handle_connection(mut stream: TcpStream, routemanager: &RouteManager) {
     let buf_reader = BufReader::new(&stream);
     let http_request: Vec<_> = buf_reader
         .lines()

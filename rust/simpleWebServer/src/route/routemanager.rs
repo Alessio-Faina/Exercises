@@ -58,7 +58,7 @@ impl RouteManager {
         };
     }
 
-    pub fn call_route_by_path(&mut self, path: String, http_request: &Vec<String>) -> Result<String, RouteResolverError> {
+    pub fn call_route_by_path(&self, path: String, http_request: &Vec<String>) -> Result<String, RouteResolverError> {
         let res: Option<&Route> = self.path_routes.get(&path);
         match res {
             Some(item) => return Ok((item.responder)(http_request)),
@@ -66,7 +66,7 @@ impl RouteManager {
         }
     }
 
-    pub fn call_route_by_error_code(&mut self, err_code: HttpResponseStatus, http_request: &Vec<String>) -> Result<String, RouteResolverError> {
+    pub fn call_route_by_error_code(&self, err_code: HttpResponseStatus, http_request: &Vec<String>) -> Result<String, RouteResolverError> {
         let res: Option<&Route> = self.error_routes.get(&err_code);
         match res {
             Some(item) => return Ok((item.responder)(http_request)),
@@ -74,7 +74,7 @@ impl RouteManager {
         }
     }
 
-    pub fn call_route(&mut self, http_request: &Vec<String>) -> String {
+    pub fn call_route(&self, http_request: &Vec<String>) -> String {
         let mut response: String= "".to_string();
     
         match http_parser::parse_for_errors(&http_request) {
@@ -107,7 +107,7 @@ mod tests {
     #[test]
     fn no_path_defined_for_errors_returns_internal_error() {
         let http_request : Vec<String> = vec!["GET / HTTP/1.1".to_string()];
-        let mut rm = RouteManager::new();
+        let rm = RouteManager::new();
         assert_eq!(rm.call_route(&http_request), constants::HTTP_INTERNAL_ERROR);
     }
 
