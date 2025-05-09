@@ -136,4 +136,13 @@ mod tests {
         rm.add_route_by_error_code(HttpResponseStatus::NotFound, route::not_found::get_response);
         assert_eq!(rm.call_route(&http_request).contains(constants::HTTP_SUCCESS_HEADER), true);
     }
+
+    #[test]
+    fn path_defined_and_wrong_request_returns_404_not_found() {
+        let http_request : Vec<String> = vec!["GETa aa/ HTTP/1.1".to_string()];
+        let mut rm = RouteManager::new();
+        rm.add_route_by_path("/".to_string(), route::index::get_response);
+        rm.add_route_by_error_code(HttpResponseStatus::NotFound, route::not_found::get_response);
+        assert_eq!(rm.call_route(&http_request).contains(constants::HTTP_NOT_FOUND_HEADER), true);
+    }
 }
